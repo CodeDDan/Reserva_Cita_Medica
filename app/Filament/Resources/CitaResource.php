@@ -24,6 +24,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\DateTimePicker;
@@ -48,6 +49,11 @@ class CitaResource extends Resource
 
     // Especifíca la ubicación en el panel
     //protected static ?string $navigationSort = 1;
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 
     public static function form(Form $form): Form
     {
@@ -315,6 +321,7 @@ class CitaResource extends Resource
                             ->minDate(now())
                             ->hoursStep(1)
                             ->minutesStep(15)
+                            ->seconds(false)
                             ->required()
                             ->validationMessages([
                                 'required' => 'Escoga la fecha inicial de la cita.',
@@ -425,12 +432,12 @@ class CitaResource extends Resource
                             $indicators['created_from'] = 'Creado desde ' . Carbon::parse($data['created_from'])
                                 ->locale('es-ES')
                                 ->isoFormat('ll');
-                                // al colocar 'llll' se incluye la hora y am o pm
+                            // al colocar 'llll' se incluye la hora y am o pm
                         }
                         if ($data['created_until'] ?? null) {
                             $indicators['created_until'] = 'Creado hasta ' . Carbon::parse($data['created_until'])
-                            ->locale('es-ES')
-                            ->isoFormat('ll');
+                                ->locale('es-ES')
+                                ->isoFormat('ll');
                         }
 
                         return $indicators;

@@ -15,6 +15,7 @@ use Filament\Forms\Components\RichEditor;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\DateTimePicker;
 use Saade\FilamentFullCalendar\Actions\CreateAction;
+use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
 use Saade\FilamentFullCalendar\Widgets\FullCalendarWidget;
 
 class CalendarWidget extends FullCalendarWidget
@@ -72,22 +73,6 @@ class CalendarWidget extends FullCalendarWidget
                 ->description('Agrege el estado de la cita y la fecha de la cita')
                 ->icon('heroicon-o-calendar')
                 ->schema([
-                    Select::make('estado')
-                        ->required()
-                        ->validationMessages([
-                            'required' => 'Escoga el estado inicial de la cita.',
-                        ])
-                        ->suffixIcon('heroicon-o-clipboard-document-check')
-                        ->suffixIconColor('primary')
-                        ->native(false)
-                        ->options([
-                            'Agendado' => 'Agendado',
-                            'Reservado' => 'Reservado',
-                            'Cancelado' => 'Cancelado',
-                            'Abandonado' => 'Abandonado'
-                        ])
-                        ->default('Agendado')
-                        ->disabledOn('create'),
                     DateTimePicker::make('fecha_inicio_cita')
                         ->native(false)
                         ->suffixIcon('heroicon-o-calendar')
@@ -146,10 +131,9 @@ class CalendarWidget extends FullCalendarWidget
             CreateAction::make()
                 ->mutateFormDataUsing(function (array $data): array {
                     $data['paciente_id'] = auth()->id();
-
+                    $data['estado'] = 'Agendado';
                     return $data;
-                }),
-            CreateAction::make()
+                })
                 ->mountUsing(
                     function (Form $form, array $arguments) {
                         $form->fill([
@@ -157,7 +141,7 @@ class CalendarWidget extends FullCalendarWidget
                             'fecha_fin_cita' => $arguments['end'] ?? null
                         ]);
                     }
-                )
+                ),  
         ];
     }
 }

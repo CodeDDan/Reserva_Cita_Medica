@@ -17,10 +17,13 @@ return new class extends Migration
             $table->unsignedBigInteger('horario_id');
             $table->boolean('activo')->default(true);
             $table->timestamps();
+            
+            // Restricción única compuesta
+            $table->unique(['empleado_id', 'horario_id']);
         });
 
         // Claves foráneas
-        Schema::table('empleado_horario', function($table) {
+        Schema::table('empleado_horario', function ($table) {
             $table->foreign('empleado_id')->references('id')->on('empleados');
             $table->foreign('horario_id')->references('id')->on('horarios');
         });

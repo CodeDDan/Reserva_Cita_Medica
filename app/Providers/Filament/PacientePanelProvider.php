@@ -50,8 +50,31 @@ class PacientePanelProvider extends PanelProvider
             ])
             ->plugin(
                 FilamentFullCalendarPlugin::make()
-                ->selectable()
-                ->editable()
+                    ->config([
+                        'editable' => true,
+                        'selectable' => true,
+                        // 'validRange' => [
+                        //     'start' => date('Y-m-d'), // A partir de hoy
+                        // ],
+                        'headerToolbar' => [
+                            'left' => 'prev,next today',
+                            'center' => 'title',
+                            // Aquí se agregan los botones, si se le da espacio lo entenderá como un bloque distinto de botón
+                            // Por defecto vienen dayGridMonth, dayGridWeek y 
+                            // Los otros útiles pueden ser timeGridWeek, timeGridDay y listDay
+                            'right' => 'dayGridMonth,timeGridWeek,dayGridDay listWeek',
+                        ],
+                        'views' => [
+                            'listWeek' => [
+                                'buttonText' => 'Agenda Semanal',
+                                // 'duration' => ['days' => 3], // Limita la vista de la lista semanal a 4 días
+                            ],
+                            'listDay' => [  
+                                'buttonText' => 'Lista Diaria',
+                            ],
+                        ],
+                        // Otras configuraciones...
+                    ])
             )
             ->widgets([
                 Widgets\AccountWidget::class,

@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
 use Filament\Support\Enums\Alignment;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
@@ -49,10 +50,6 @@ class EmpleadoResource extends Resource
                     ->description('Información principal del empleado')
                     ->icon('heroicon-o-identification')
                     ->schema([
-                        Select::make('horarios_id')
-                            ->multiple()
-                            ->relationship('horarios', 'dia_semana')
-                            ->preload(20),
                         Select::make('grupo_id')
                             ->relationship('grupo', 'nombre')
                             ->suffixIcon('heroicon-o-user-group')
@@ -124,6 +121,26 @@ class EmpleadoResource extends Resource
                             ->suffixIconColor('primary')
                             ->maxLength(255),
                     ])->columns(2),
+                Section::make('Asignación de horarios')
+                    ->description('Escoga los turnos de trabajo')
+                    ->schema([
+                        Select::make('horarios_id')
+                            ->multiple()
+                            ->relationship('horarios', 'descripcion_horario')
+                            ->preload(20),
+                        Repeater::make('empleadoHorario')
+                            ->relationship()
+                            ->label('Horarios')
+                            ->reorderable()
+                            ->collapsible()
+                            ->collapsed()
+                            ->schema([
+                                Select::make('horario_id')
+                                    ->relationship('horario', 'descripcion_horario')
+                                    ->required(),
+                                // ...
+                            ])
+                    ]),
                 Section::make('Información extra')
                     ->description('Detalles relevantes del empleado')
                     ->icon('heroicon-o-shield-check')

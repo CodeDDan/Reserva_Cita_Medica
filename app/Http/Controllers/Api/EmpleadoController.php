@@ -17,11 +17,36 @@ class EmpleadoController extends Controller
      */
     public function index()
     {
-        // Recupera todos los registros del modelo Paciente
-        $empleado = Empleado::all();
+        // // Recupera todos los registros del modelo Paciente
+        // $empleado = Empleado::all();
 
-        // Retorna los registros como respuesta JSON
-        return response()->json(['data' => $empleado], 200);
+        // // Retorna los registros como respuesta JSON
+        // return response()->json(['data' => $empleado], 200);
+        // Recupera todos los registros del modelo Empleado con la relación Grupo cargada
+        $empleados = Empleado::with('grupo')->get();
+
+        // Transforma los datos para incluir la especialidad en lugar del grupo_id
+        $data = $empleados->map(function ($empleado) {
+            return [
+                'id' => $empleado->id,
+                'especialidad' => $empleado->grupo->nombre,
+                'nombre' => $empleado->nombre,
+                'apellido' => $empleado->apellido,
+                'nombre_completo' => $empleado->nombre_completo,
+                'edad' => $empleado->edad,
+                'correo' => $empleado->correo,
+                'direccion' => $empleado->direccion,
+                'telefono' => $empleado->telefono,
+                'fecha_de_contratacion' => $empleado->fecha_de_contratacion,
+                'contacto_opcional' => $empleado->contacto_opcional,
+                'activo' => $empleado->activo,
+                'created_at' => $empleado->created_at,
+                'updated_at' => $empleado->updated_at,
+            ];
+        });
+
+        // Retorna los registros transformados como respuesta JSON
+        return response()->json(['data' => $data], 200);
     }
 
     /**

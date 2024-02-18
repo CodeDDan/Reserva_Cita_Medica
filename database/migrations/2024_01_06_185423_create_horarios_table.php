@@ -16,8 +16,12 @@ return new class extends Migration
             $table->string('dia_semana');
             $table->time('hora_inicio');
             $table->time('hora_fin');
+            $table->string('descripcion_horario')->virtualAs("CONCAT(dia_semana, ' ', hora_inicio, ' a ', hora_fin)");
             $table->integer('estado')->default(1);
             $table->timestamps();
+
+            // Restricción única compuesta
+            $table->unique(['dia_semana', 'hora_inicio', 'hora_fin']);
         });
     }
 

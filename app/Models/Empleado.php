@@ -50,4 +50,10 @@ class Empleado extends Model
             ->withPivot('activo')
             ->withTimestamps();
     }
+
+    // Para el repeater
+    public function empleadoHorario(): HasMany
+    {
+        return $this->hasMany(EmpleadoHorario::class);
+    }
 }

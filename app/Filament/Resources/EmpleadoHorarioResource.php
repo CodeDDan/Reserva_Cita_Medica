@@ -8,7 +8,9 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\EmpleadoHorario;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Select;
 use Filament\Support\Enums\Alignment;
+use Filament\Forms\Components\Repeater;
 use Filament\Tables\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -34,10 +36,16 @@ class EmpleadoHorarioResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('empleado_id')
-                    ->relationship('empleado', 'id')
-                    ->required(),
-                Forms\Components\Select::make('horario_id')
-                    ->relationship('horario', 'id')
+                    ->relationship('empleado', 'nombre_completo')
+                    ->searchable()
+                    ->preload(20)
+                    ->required()
+                    ->native(false),
+                Select::make('horario_id')
+                    ->relationship('horario', 'descripcion_horario')
+                    ->searchable()
+                    ->preload(20)
+                    ->native(false)
                     ->required(),
                 Forms\Components\Toggle::make('activo')
                     ->required(),
@@ -48,10 +56,11 @@ class EmpleadoHorarioResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('empleado.id')
+                Tables\Columns\TextColumn::make('empleado.nombre_completo')
+                    ->searchable()
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('horario.id')
+                Tables\Columns\TextColumn::make('horario.descripcion_horario')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\IconColumn::make('activo')
