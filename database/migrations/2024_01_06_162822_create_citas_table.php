@@ -20,6 +20,12 @@ return new class extends Migration
             $table->unsignedBigInteger('paciente_id');
             $table->unsignedBigInteger('empleado_id');
             $table->timestamps();
+
+            // Restricción única compuesta, evita que un empleado sea asignado a la misma hora
+            $table->unique(['empleado_id', 'fecha_inicio_cita']);
+
+            // Restricción única compuesta, evita que un paciente tenga citas con distintos doctores al mismo tiempo
+            $table->unique(['paciente_id', 'fecha_inicio_cita']);
         });
 
         // Claves foráneas

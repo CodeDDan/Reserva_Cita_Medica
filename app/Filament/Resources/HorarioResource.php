@@ -59,7 +59,7 @@ class HorarioResource extends Resource
                             ->options([
                                 'Lunes' => 'Lunes',
                                 'Martes' => 'Martes',
-                                'Miercoles' => 'Miercoes',
+                                'Miercoles' => 'Miercoles',
                                 'Jueves' => 'Jueves',
                                 'Viernes' => 'Viernes',
                             ])

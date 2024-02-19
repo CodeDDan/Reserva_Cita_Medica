@@ -32,6 +32,11 @@ class PacienteResource extends Resource
     //protected static ?string $modelLabel = 'Mis citas';
     protected static ?string $navigationGroup = 'Control Médico';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+    
     public static function form(Form $form): Form
     {
         return $form

@@ -28,8 +28,11 @@ class EmpleadoResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
 
-    // Modifica el nombre del label del panel
-    //protected static ?string $navigationLabel = 'Ver citas';
+    // Modifica el nombre del label tanto en el panel como en el formulario
+    protected static ?string $modelLabel = 'Doctores';
+
+    // Modifica solamente el label del panel de navegación.
+    // protected static ?string $navigationLabel = 'Doctores';
 
     // Cambia tanto el nombre del label en el panel como en la información
     //protected static ?string $modelLabel = 'Mis citas';
@@ -134,12 +137,18 @@ class EmpleadoResource extends Resource
                             ->reorderable()
                             ->collapsible()
                             ->collapsed()
-                            ->schema([
+                            ->simple(
                                 Select::make('horario_id')
+                                    ->native(false)
                                     ->relationship('horario', 'descripcion_horario')
-                                    ->required(),
+                                    ->required()
+                                    ->unique(ignoreRecord: true)
+                                    ->validationMessages([
+                                        'unique' => 'Este horario ya está asignado'
+                                    ]),
                                 // ...
-                            ])
+                            )
+                            ->hiddenOn('create')
                     ]),
                 Section::make('Información extra')
                     ->description('Detalles relevantes del empleado')
@@ -152,6 +161,7 @@ class EmpleadoResource extends Resource
                             ->suffixIconColor('primary')
                             ->required()
                             ->confirmed()
+                            ->hiddenOn('edit')
                             ->validationMessages([
                                 'confirmed' => 'Las contraseñas no coinciden.',
                             ])
@@ -162,6 +172,7 @@ class EmpleadoResource extends Resource
                             ->suffixIcon('heroicon-s-lock-closed')
                             ->suffixIconColor('primary')
                             ->required()
+                            ->hiddenOn('edit')
                             ->maxLength(255),
                         DatePicker::make('fecha_de_contratacion')
                             ->native(false)

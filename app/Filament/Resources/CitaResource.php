@@ -6,6 +6,7 @@ use Filament\Forms;
 use App\Models\Cita;
 use Filament\Tables;
 use App\Models\Grupo;
+use App\Models\Horario;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use App\Models\Empleado;
@@ -14,12 +15,14 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Illuminate\Support\Carbon;
 use Filament\Resources\Resource;
+use Filament\Actions\CreateAction;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
 use Filament\Support\Enums\Alignment;
 use Filament\Forms\Components\Section;
+use Illuminate\Validation\Rules\Unique;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
@@ -285,13 +288,21 @@ class CitaResource extends Resource
                                             ->maxLength(255),
                                     ])->columns(2)
                                     ->hiddenOn('edit'),
+                            ])
+                            ->unique(modifyRuleUsing: function (Unique $rule, callable $get) {
+                                return $rule
+                                    ->where('paciente_id', $get('paciente_id'))
+                                    ->where('fecha_inicio_cita', $get('fecha_inicio_cita'));
+                            }, ignoreRecord: true)
+                            ->validationMessages([
+                                'unique' => 'Ya tiene una cita asignada para dicha fecha y hora'
                             ]),
                     ])->columns(2),
                 Section::make('Información')
                     ->description('Agrege información sobre el motivo de la consulta.')
                     ->icon('heroicon-o-document-minus')
                     ->schema([
-                        RichEditor::make('motivo')
+                        RichEditor::make('motivo') // Ocasiona un error de label
                             ->required(),
                     ]),
                 Section::make('Estado y fechas')
@@ -314,7 +325,8 @@ class CitaResource extends Resource
                             ])
                             ->default('Agendado')
                             ->disabledOn('create'),
-                        DateTimePicker::make('fecha_inicio_cita')
+                        DatePicker::make('dia_cita')
+                            ->format('m-d-Y')
                             ->native(false)
                             ->suffixIcon('heroicon-o-calendar')
                             ->suffixIconColor('primary')
@@ -322,16 +334,74 @@ class CitaResource extends Resource
                             ->hoursStep(1)
                             ->minutesStep(15)
                             ->seconds(false)
-                            ->required()
                             ->validationMessages([
                                 'required' => 'Escoga la fecha inicial de la cita.',
-                            ]),
-                        DateTimePicker::make('fecha_fin_cita')
+                            ])
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn (Set $set) => $set('hora_cita', null)),
+                        Select::make('hora_cita')
+                            ->label('Hora de la cita')
+                            ->relationship(
+                                // Se debe ir relación por relación.
+                                // Caso contrario se pierde el id para la selección
+                                'empleado.empleadoHorario.horario',
+                                'hora_inicio',
+                                modifyQueryUsing: function (Builder $query, Get $get) {
+                                    if ($get('empleado_id') && $get('dia_cita')) {
+                                        $dia_semana = '';
+                                        // Si hay una fecha seleccionada, obtener el día de la semana
+                                        $fecha = Carbon::createFromFormat('Y-m-d H:i:s', $get('dia_cita'));
+                                        $dia_semana = strtolower($fecha->translatedFormat('l'));
+
+                                        return $query->whereHas('empleados', function ($query) use ($get, $dia_semana) {
+                                            $query->where('empleado_id', $get('empleado_id'))->where('dia_semana', $dia_semana);
+                                        });
+                                    }
+                                }
+                            )
                             ->native(false)
+                            ->live(onBlur: true)
+                            ->preload() // No deberían existir muchos horarios
+                            ->searchable()
+                            ->afterStateUpdated(function (Set $set, Get $get) {
+                                if ($get('dia_cita') && $get('hora_cita')) {
+                                    // Obtener el ID del horario desde la cita
+                                    $horario_id = $get('hora_cita');
+
+                                    // Recuperar el horario real de la base de datos utilizando el ID
+                                    $horario = Horario::find($horario_id);
+
+                                    // Obtener la hora de inicio del horario
+                                    $hora_cita = $horario->hora_inicio;
+
+                                    // Obtener la fecha de la cita y quitar la parte de la hora
+                                    $dia_cita = date('Y-m-d', strtotime($get('dia_cita')));
+
+                                    // Combinar los valores en fecha_inicio_cita
+                                    $fecha_inicio_cita = $dia_cita . ' ' . $hora_cita;
+
+                                    // Establecer el valor de fecha_inicio_cita
+                                    $set('fecha_inicio_cita', $fecha_inicio_cita);
+                                } else {
+                                    $set('fecha_inicio_cita', null);
+                                }
+                            }),
+                        TextInput::make('fecha_inicio_cita')
+                            ->unique(modifyRuleUsing: function (Unique $rule, callable $get) {
+                                return $rule
+                                    ->where('empleado_id', $get('empleado_id'))
+                                    ->where('fecha_inicio_cita', $get('fecha_inicio_cita'));
+                            }, ignoreRecord: true)
+                            ->validationMessages([
+                                'unique' => 'Fecha para la cita no disponible'
+                            ])
+                            ->readOnly(),
+                        DateTimePicker::make('fecha_fin_cita')
+                            ->readOnly()
                             ->suffixIcon('heroicon-s-calendar')
                             ->suffixIconColor('primary')
-
-                            ->hiddenOn('create'),
+                            ->hiddenOn('create')
+                            ->native(false),
                     ])->columns(2),
             ]);
     }
@@ -350,6 +420,7 @@ class CitaResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('empleado.nombre_completo')
+                    ->label('Doctor')
                     ->alignment(Alignment::Center)
                     ->searchable()
                     ->sortable(),
