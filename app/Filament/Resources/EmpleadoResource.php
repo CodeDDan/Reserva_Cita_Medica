@@ -31,6 +31,9 @@ class EmpleadoResource extends Resource
     // Modifica el nombre del label tanto en el panel como en el formulario
     protected static ?string $modelLabel = 'Doctor';
 
+    // Modifica el plural
+    protected static ?string $pluralModelLabel = 'Doctores';
+
     // Modifica solamente el label del panel de navegación.
     protected static ?string $navigationLabel = 'Doctores';
 

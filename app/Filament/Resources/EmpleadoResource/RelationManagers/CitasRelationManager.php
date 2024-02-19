@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\EmpleadoResource\RelationManagers;
 
 use Filament\Forms;
+use App\Models\Cita;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -23,7 +24,9 @@ class CitasRelationManager extends RelationManager
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
     {
-        return static::$badge;
+        $count = Cita::where('empleado_id', $ownerRecord->id)->count();
+
+        return $count > 0 ? (string)$count : null;
     }
 
     public function form(Form $form): Form
