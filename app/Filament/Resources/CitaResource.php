@@ -330,10 +330,6 @@ class CitaResource extends Resource
                             ->native(false)
                             ->suffixIcon('heroicon-o-calendar')
                             ->suffixIconColor('primary')
-                            ->minDate(now())
-                            ->hoursStep(1)
-                            ->minutesStep(15)
-                            ->seconds(false)
                             ->validationMessages([
                                 'required' => 'Escoga la fecha inicial de la cita.',
                             ])
@@ -356,6 +352,10 @@ class CitaResource extends Resource
                                         return $query->whereHas('empleados', function ($query) use ($get, $dia_semana) {
                                             $query->where('empleado_id', $get('empleado_id'))->where('dia_semana', $dia_semana);
                                         });
+                                    } else {
+                                        // Esta condición se debe agregar para que no se cargue nada
+                                        // Caso contrario se cargará la relación completa
+                                        return $query->whereNull('id'); 
                                     }
                                 }
                             )
@@ -386,15 +386,17 @@ class CitaResource extends Resource
                                     $set('fecha_inicio_cita', null);
                                 }
                             }),
-                        TextInput::make('fecha_inicio_cita')
+                        DateTimePicker::make('fecha_inicio_cita')
                             ->unique(modifyRuleUsing: function (Unique $rule, callable $get) {
                                 return $rule
                                     ->where('empleado_id', $get('empleado_id'))
                                     ->where('fecha_inicio_cita', $get('fecha_inicio_cita'));
                             }, ignoreRecord: true)
+                            ->minDate(now())
                             ->validationMessages([
-                                'unique' => 'Fecha para la cita no disponible'
+                                'unique' => 'Fecha para la cita no disponible',
                             ])
+                            ->native(false)
                             ->readOnly(),
                         DateTimePicker::make('fecha_fin_cita')
                             ->readOnly()

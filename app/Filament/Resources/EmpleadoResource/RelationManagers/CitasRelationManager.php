@@ -8,6 +8,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
@@ -19,6 +20,11 @@ use Filament\Resources\RelationManagers\RelationManager;
 class CitasRelationManager extends RelationManager
 {
     protected static string $relationship = 'citas';
+
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        return static::$badge;
+    }
 
     public function form(Form $form): Form
     {

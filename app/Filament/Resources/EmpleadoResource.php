@@ -29,10 +29,10 @@ class EmpleadoResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
 
     // Modifica el nombre del label tanto en el panel como en el formulario
-    protected static ?string $modelLabel = 'Doctores';
+    protected static ?string $modelLabel = 'Doctor';
 
     // Modifica solamente el label del panel de navegación.
-    // protected static ?string $navigationLabel = 'Doctores';
+    protected static ?string $navigationLabel = 'Doctores';
 
     // Cambia tanto el nombre del label en el panel como en la información
     //protected static ?string $modelLabel = 'Mis citas';
@@ -129,8 +129,16 @@ class EmpleadoResource extends Resource
                     ->schema([
                         Select::make('horarios_id')
                             ->multiple()
-                            ->relationship('horarios', 'descripcion_horario')
-                            ->preload(20),
+                            ->relationship(
+                                'horarios',
+                                'descripcion_horario',
+                                modifyQueryUsing: function (Builder $query) {
+                                    return $query->orderByRaw("FIELD(dia_semana, 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo')");
+                                }
+                            ) // Instrucción para ordenar el campo de selección basado en los días de la semana
+                            ->preload(20)
+                            ->searchable()
+                            ->native(false),
                         Repeater::make('empleadoHorario')
                             ->relationship()
                             ->label('Horarios')
