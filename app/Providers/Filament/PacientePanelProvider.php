@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\PacienteRegister;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
@@ -27,7 +28,7 @@ class PacientePanelProvider extends PanelProvider
             ->id('paciente')
             ->path('paciente')
             ->login()
-            ->registration()
+            ->registration(PacienteRegister::class)
             ->colors([
                 'primary' => Color::Amber,
             ])

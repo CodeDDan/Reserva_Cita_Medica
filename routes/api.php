@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CitaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\GrupoController;
@@ -49,4 +50,9 @@ Route::group(['prefix' => 'v1'], function () {
 Route::group(['prefix' => 'v1'], function () {
     Route::apiResource('grupos', GrupoController::class);
     Route::get('grupos-con-empleados', [GrupoController::class, 'indexAll']);
+});
+
+Route::group(['prefix' => 'v1'], function() {
+    // Ruta para obtener el id del doctor a asignar
+    Route::get('/citas/obtener_id_doctor', [CitaController::class, 'asignarDoctorEquitativo']);
 });

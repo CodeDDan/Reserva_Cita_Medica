@@ -56,4 +56,22 @@ class Empleado extends Model
     {
         return $this->hasMany(EmpleadoHorario::class);
     }
+
+    // Función para recuperar los IDs de empleados por grupo_id
+    public static function obtenerIdPorGrupo($grupo_id)
+    {
+        // Usamos Eloquent para consultar los empleados con el grupo_id dado
+        $empleados = self::where('grupo_id', $grupo_id)->get();
+        
+        // Creamos un array para almacenar los IDs de los empleados
+        $idEmpleados = [];
+
+        // Iteramos sobre los empleados para obtener sus IDs
+        foreach ($empleados as $empleado) {
+            $idEmpleados[] = $empleado->id;
+        }
+
+        // Retornamos el array de IDs de empleados
+        return $idEmpleados;
+    }
 }
