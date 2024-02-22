@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\Api\CitaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Api\CitaController;
 use App\Http\Controllers\Api\GrupoController;
 use App\Http\Controllers\Api\HorarioController;
 use App\Http\Controllers\Api\EmpleadoController;
@@ -53,6 +54,12 @@ Route::group(['prefix' => 'v1'], function () {
 });
 
 Route::group(['prefix' => 'v1'], function() {
+    Route::apiResource('citas', CitaController::class);
+    // Ruta para obtener las citas de un usuario específico
+    Route::get('/citas/mis_citas/{paciente_id}', [CitaController::class, 'getCitasUsuario']);
     // Ruta para obtener el id del doctor a asignar
-    Route::get('/citas/obtener_id_doctor', [CitaController::class, 'asignarDoctorEquitativo']);
+    Route::post('/citas/obtener_id_doctor', [CitaController::class, 'asignarDoctorEquitativo']);
 });
+
+// Rutas para el login
+Route::post('/movil_login', [AuthController::class, 'login']);

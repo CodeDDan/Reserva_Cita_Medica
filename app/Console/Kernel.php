@@ -2,8 +2,10 @@
 
 namespace App\Console;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Carbon\Carbon;
 
 class Kernel extends ConsoleKernel
 {
@@ -13,6 +15,14 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly(); // NOSONAR
+        $schedule->call(function () {
+            // Código para actualizar el estado de las citas al final del día
+            DB::table('citas')
+                ->whereDate('fecha_inicio_cita', Carbon::today())
+                ->whereNull('fecha_fin_cita')
+                ->where('estado', 'Agendado')
+                ->update(['estado' => 'Abandonado']);
+        })->dailyAt('23:59'); // Se ejecutará justo antes de la medianoche
     }
 
     /**

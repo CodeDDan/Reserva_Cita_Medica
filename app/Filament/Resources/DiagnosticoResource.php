@@ -34,9 +34,8 @@ class DiagnosticoResource extends Resource
                 Forms\Components\Select::make('cita_id')
                     ->relationship('cita', 'id')
                     ->required(),
-                Forms\Components\Textarea::make('detalles')
+                Forms\Components\RichEditor::make('detalles')
                     ->required()
-                    ->maxLength(65535)
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('examenes')
                     ->required()

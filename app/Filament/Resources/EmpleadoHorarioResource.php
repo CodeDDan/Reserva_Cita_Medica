@@ -61,7 +61,7 @@ class EmpleadoHorarioResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('horario.descripcion_horario')
-                    ->numeric()
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\IconColumn::make('activo')
                     ->alignment(Alignment::Center)
