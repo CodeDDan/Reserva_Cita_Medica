@@ -2,16 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\DiagnosticoResource\Pages;
-use App\Filament\Resources\DiagnosticoResource\RelationManagers;
-use App\Models\Diagnostico;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Diagnostico;
+use Filament\Resources\Resource;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\DiagnosticoResource\Pages;
+use App\Filament\Resources\DiagnosticoResource\RelationManagers;
 
 class DiagnosticoResource extends Resource
 {
@@ -33,6 +34,14 @@ class DiagnosticoResource extends Resource
             ->schema([
                 Forms\Components\Select::make('cita_id')
                     ->relationship('cita', 'id')
+                    ->getOptionLabelFromRecordUsing(function (Model $record) {
+                        // Aquí asumo que 'paciente' y 'empleado' son atributos en tu modelo 'cita'.
+                        $pacienteNombre = $record->paciente->nombre_completo; // Ajusta según la estructura de tu modelo.
+                        $empleadoNombre = $record->empleado->nombre_completo; // Ajusta según la estructura de tu modelo.
+
+                        // Concatenar los nombres del paciente y el empleado.
+                        return "{$pacienteNombre} - {$empleadoNombre}";
+                    })
                     ->required(),
                 Forms\Components\RichEditor::make('detalles')
                     ->required()
@@ -49,8 +58,14 @@ class DiagnosticoResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('cita.id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('cita.paciente.nombre_completo')
+                    ->label('Paciente')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('cita.empleado.nombre_completo')
+                    ->label('Doctor')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('cita.fecha_inicio_cita')
+                    ->label('Fecha de la Cita')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('examenes')
                     ->searchable(),

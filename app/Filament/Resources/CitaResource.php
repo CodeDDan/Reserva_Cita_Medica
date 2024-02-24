@@ -22,6 +22,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
 use Filament\Support\Enums\Alignment;
 use Filament\Forms\Components\Section;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rules\Unique;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Enums\FiltersLayout;
@@ -86,13 +87,9 @@ class CitaResource extends Resource
                             // Se debe colocar lo siguiente para que en la edición de la
                             // columna aparezca el nombre y no el id
                             ->getOptionLabelUsing(fn ($value): ?string => Empleado::find($value)?->nombre_completo)
-                            ->required()
                             ->searchable()
                             ->preload()
                             ->live(onBlur: true)
-                            ->validationMessages([
-                                'required' => 'Escoga un doctor.',
-                            ])
                             ->native(false)
                             ->suffixIcon('heroicon-o-user-plus')
                             ->suffixIconColor('primary')
@@ -186,8 +183,7 @@ class CitaResource extends Resource
                                             ->hidden()
                                             ->default(1),
                                     ])->columns(2)
-                            ])
-                            ->required(),
+                            ]),
                         Select::make('paciente_id')
                             ->label('Paciente')
                             ->relationship('paciente', 'nombre_completo')
@@ -352,10 +348,18 @@ class CitaResource extends Resource
                                         return $query->whereHas('empleados', function ($query) use ($get, $dia_semana) {
                                             $query->where('empleado_id', $get('empleado_id'))->where('dia_semana', $dia_semana);
                                         });
+                                    } else if ($get('dia_cita')) {
+                                        $dia_semana = '';
+                                        // Si hay una fecha seleccionada, obtener el día de la semana
+                                        $fecha = Carbon::createFromFormat('Y-m-d H:i:s', $get('dia_cita'));
+                                        $dia_semana = strtolower($fecha->translatedFormat('l'));
+
+                                        return $query->where('dia_semana', $dia_semana);
+
                                     } else {
                                         // Esta condición se debe agregar para que no se cargue nada
                                         // Caso contrario se cargará la relación completa
-                                        return $query->whereNull('id'); 
+                                        return $query->whereNull('id');
                                     }
                                 }
                             )
@@ -475,13 +479,13 @@ class CitaResource extends Resource
                 Filter::make('created_at')
                     ->form([
                         DatePicker::make('created_from')
-                            ->label('Creado desde')
+                            ->label('Cita creada desde')
                             ->placeholder('Fecha inicial')
                             ->native(false)
                             ->suffixIcon('heroicon-o-calendar')
                             ->suffixIconColor('primary'),
                         DatePicker::make('created_until')
-                            ->label('Creado hasta')
+                            ->label('Cita creada hasta')
                             ->after('created_from')
                             ->placeholder('Fecha final')
                             ->native(false)
@@ -492,11 +496,11 @@ class CitaResource extends Resource
                         return $query
                             ->when(
                                 $data['created_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('fecha_inicio_cita', '>=', $date),
                             )
                             ->when(
                                 $data['created_until'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('fecha_inicio_cita', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): array {
@@ -518,6 +522,14 @@ class CitaResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('Cancelar cita')
+                    ->action(function (Cita $cita) {
+                        $cita->update([
+                            'fecha_fin_cita' => $cita->fecha_inicio_cita,
+                            'fecha_inicio_cita' => null,
+                            'estado' => 'Cancelado',
+                        ]);
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

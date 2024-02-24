@@ -142,24 +142,24 @@ class EmpleadoResource extends Resource
                             ->preload(20)
                             ->searchable()
                             ->native(false),
-                        Repeater::make('empleadoHorario')
-                            ->relationship()
-                            ->label('Horarios')
-                            ->reorderable()
-                            ->collapsible()
-                            ->collapsed()
-                            ->simple(
-                                Select::make('horario_id')
-                                    ->native(false)
-                                    ->relationship('horario', 'descripcion_horario')
-                                    ->required()
-                                    ->unique(ignoreRecord: true)
-                                    ->validationMessages([
-                                        'unique' => 'Este horario ya está asignado'
-                                    ]),
-                                // ...
-                            )
-                            ->hiddenOn('create')
+                        // Repeater::make('empleadoHorario')
+                        //     ->relationship()
+                        //     ->label('Horarios')
+                        //     ->reorderable()
+                        //     ->collapsible()
+                        //     ->collapsed()
+                        //     ->simple(
+                        //         Select::make('horario_id')
+                        //             ->native(false)
+                        //             ->relationship('horario', 'descripcion_horario')
+                        //             ->required()
+                        //             ->unique(ignoreRecord: true)
+                        //             ->validationMessages([
+                        //                 'unique' => 'Este horario ya está asignado'
+                        //             ]),
+                        //         // ...
+                        //     )
+                        //     ->hiddenOn('create')
                     ]),
                 Section::make('Información extra')
                     ->description('Detalles relevantes del empleado')

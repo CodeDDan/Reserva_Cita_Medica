@@ -39,8 +39,8 @@ class AdminPanelProvider extends PanelProvider
                     ->collapsed(),
             ])
             ->default()
-            ->id('dashboard')
-            ->path('dashboard')
+            ->id('admin')
+            ->path('admin')
             // Login y registro
             ->login()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')

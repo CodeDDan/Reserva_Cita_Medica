@@ -114,11 +114,23 @@ class CalendarWidget extends FullCalendarWidget
 
             // crearemos nuestro título personalizado
             $titulo = $cita->empleado->grupo->nombre . ' - Dr. ' . $cita->empleado->nombre_completo;
+
+            // Definir el color del evento basado en el estado de la cita
+            $color = '#4287f5'; // Azul por defecto
+
+            // Ejemplo: cambiar el color a verde si el estado de la cita es "confirmada"
+            if ($cita->estado == 'Reservado') {
+                $color = '#18b00b'; // Verde
+            } elseif ($cita->estado == 'Abandonado') {
+                $color = '#b8260d'; // Rojo
+            }
+
             return [
                 'id' => $cita->id,
                 'title' => $titulo,
                 'start' => $cita->fecha_inicio_cita,
                 'end' => $cita->fecha_fin_cita,
+                'color' => $color, // Asignar el color al evento
             ];
         });
 
@@ -141,7 +153,7 @@ class CalendarWidget extends FullCalendarWidget
                             'fecha_fin_cita' => $arguments['end'] ?? null
                         ]);
                     }
-                ),  
+                ),
         ];
     }
 }

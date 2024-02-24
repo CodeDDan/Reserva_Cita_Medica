@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('citas', function (Blueprint $table) {
             $table->id();
             $table->string('estado')->default('Agendado');
-            $table->dateTime('fecha_inicio_cita');
+            $table->dateTime('fecha_inicio_cita')->nullable();
             $table->dateTime('fecha_fin_cita')->nullable();
             $table->text('motivo');
             $table->unsignedBigInteger('paciente_id');

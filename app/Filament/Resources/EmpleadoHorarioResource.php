@@ -80,7 +80,9 @@ class EmpleadoHorarioResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                TAbles\Actions\Action::make('Activar')
+                Tables\Actions\Action::make('Activar')
+                    ->requiresConfirmation()
+                    ->action(fn (EmpleadoHorario $record) => $record->update(['activo' => true])),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
