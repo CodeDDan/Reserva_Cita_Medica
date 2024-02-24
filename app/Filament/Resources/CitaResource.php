@@ -61,6 +61,7 @@ class CitaResource extends Resource
 
     public static function form(Form $form): Form
     {
+        
         return $form
             ->schema([
                 Section::make('Área y doctor')
@@ -74,6 +75,10 @@ class CitaResource extends Resource
                             ->suffixIconColor('primary')
                             ->live(onBlur: true)
                             ->afterStateUpdated(fn (Set $set) => $set('empleado_id', null))
+                            ->required()
+                            ->validationMessages([
+                                'required' => 'Especialidad no seleccionada'
+                            ])
                             ->native(false),
                         Select::make('empleado_id')
                             ->label('Doctor')

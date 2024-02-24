@@ -22,6 +22,7 @@ class CreateCita extends CreateRecord
         if ($data['empleado_id'] == null) {
             Notification::make()
                 ->danger()
+                ->color('danger')
                 ->title('No se creó la cita')
                 ->body('No hay disponibilidad para la fecha y especialidad seleccionada')
                 ->send();
