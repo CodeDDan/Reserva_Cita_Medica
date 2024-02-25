@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\CitaEstadoEnum;
 use Filament\Forms;
 use App\Models\Cita;
 use Filament\Tables;
@@ -61,7 +62,7 @@ class CitaResource extends Resource
 
     public static function form(Form $form): Form
     {
-        
+
         return $form
             ->schema([
                 Section::make('Área y doctor')
@@ -75,7 +76,7 @@ class CitaResource extends Resource
                             ->suffixIconColor('primary')
                             ->live(onBlur: true)
                             ->afterStateUpdated(fn (Set $set) => $set('empleado_id', null))
-                            ->required()
+                            ->requiredUnless('empleado_id', !null)
                             ->validationMessages([
                                 'required' => 'Especialidad no seleccionada'
                             ])
@@ -289,22 +290,13 @@ class CitaResource extends Resource
                                             ->maxLength(255),
                                     ])->columns(2)
                                     ->hiddenOn('edit'),
-                            ])
-                            ->unique(modifyRuleUsing: function (Unique $rule, callable $get) {
-                                return $rule
-                                    ->where('paciente_id', $get('paciente_id'))
-                                    ->where('fecha_inicio_cita', $get('fecha_inicio_cita'));
-                            }, ignoreRecord: true)
-                            ->validationMessages([
-                                'unique' => 'Ya tiene una cita asignada para dicha fecha y hora'
                             ]),
                     ])->columns(2),
                 Section::make('Información')
                     ->description('Agrege información sobre el motivo de la consulta.')
                     ->icon('heroicon-o-document-minus')
                     ->schema([
-                        RichEditor::make('motivo') // Ocasiona un error de label
-                            ->required(),
+                        RichEditor::make('motivo'), // Ocasiona un error de label
                     ]),
                 Section::make('Estado y fechas')
                     ->description('Agrege el estado de la cita y la fecha de la cita')
@@ -321,9 +313,11 @@ class CitaResource extends Resource
                             ->options([
                                 'Agendado' => 'Agendado',
                                 'Reservado' => 'Reservado',
+                                'Consultado' => 'Consultado',
                                 'Cancelado' => 'Cancelado',
-                                'Abandonado' => 'Abandonado'
+                                'Abandonado' => 'Abandonado',
                             ])
+                            ->enum(CitaEstadoEnum::class) // Se agregan los posibles estados de selección
                             ->default('Agendado')
                             ->disabledOn('create'),
                         DatePicker::make('dia_cita')
@@ -360,7 +354,6 @@ class CitaResource extends Resource
                                         $dia_semana = strtolower($fecha->translatedFormat('l'));
 
                                         return $query->where('dia_semana', $dia_semana);
-
                                     } else {
                                         // Esta condición se debe agregar para que no se cargue nada
                                         // Caso contrario se cargará la relación completa
@@ -396,17 +389,21 @@ class CitaResource extends Resource
                                 }
                             }),
                         DateTimePicker::make('fecha_inicio_cita')
+                            ->disabled()
+                            ->required()
+                            ->dehydrated(true)
                             ->unique(modifyRuleUsing: function (Unique $rule, callable $get) {
                                 return $rule
-                                    ->where('empleado_id', $get('empleado_id'))
+                                    ->where(function ($query) use ($get) {
+                                        $query->where('paciente_id', $get('paciente_id'))
+                                            ->orWhere('empleado_id', $get('empleado_id'));
+                                    })
                                     ->where('fecha_inicio_cita', $get('fecha_inicio_cita'));
                             }, ignoreRecord: true)
                             ->minDate(now())
                             ->validationMessages([
-                                'unique' => 'Fecha para la cita no disponible',
-                            ])
-                            ->native(false)
-                            ->readOnly(),
+                                'unique' => 'Fecha no disponible (Doctor o Paciente ya asignados a esta fecha y hora)',
+                            ])->native(false),
                         DateTimePicker::make('fecha_fin_cita')
                             ->readOnly()
                             ->suffixIcon('heroicon-s-calendar')
@@ -438,6 +435,7 @@ class CitaResource extends Resource
                 Tables\Columns\TextColumn::make('estado')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
+                        'Consultado' => 'primary',
                         'Agendado' => 'info',
                         'Reservado' => 'success',
                         'Cancelado' => 'warning',
@@ -529,12 +527,17 @@ class CitaResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('Cancelar cita')
                     ->action(function (Cita $cita) {
-                        $cita->update([
-                            'fecha_fin_cita' => $cita->fecha_inicio_cita,
-                            'fecha_inicio_cita' => null,
-                            'estado' => 'Cancelado',
-                        ]);
-                    }),
+                        if ($cita->estado != 'Abandonado') {
+                            $cita->update([
+                                'fecha_fin_cita' => $cita->fecha_inicio_cita,
+                                'fecha_inicio_cita' => null,
+                                'estado' => 'Cancelado',
+                            ]);
+                        }
+                    })
+                    ->icon('heroicon-s-archive-box-arrow-down')
+                    ->color('warning')
+                    ->requiresConfirmation(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

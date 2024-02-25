@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('citas', function (Blueprint $table) {
             $table->id();
-            $table->string('estado')->default('Agendado');
+            $table->enum('estado', ['Agendado', 'Reservado', 'Consultado', 'Cancelado', 'Abandonado'])->default('Agendado');
             $table->dateTime('fecha_inicio_cita')->nullable();
             $table->dateTime('fecha_fin_cita')->nullable();
-            $table->text('motivo');
+            $table->text('motivo')->nullable();
             $table->unsignedBigInteger('paciente_id');
             $table->unsignedBigInteger('empleado_id');
             $table->timestamps();

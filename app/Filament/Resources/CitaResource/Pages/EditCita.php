@@ -16,4 +16,13 @@ class EditCita extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if ($data['estado'] == 'Cancelado') {
+            $data['fecha_fin_cita'] = $data['fecha_inicio_cita'];
+            $data['fecha_inicio_cita'] = null;
+        }
+        return $data;
+    }
 }
