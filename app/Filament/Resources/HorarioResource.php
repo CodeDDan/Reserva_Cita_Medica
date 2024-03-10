@@ -14,12 +14,15 @@ use Filament\Resources\Resource;
 use Illuminate\Support\HtmlString;
 use Filament\Forms\Components\Select;
 use Filament\Support\Enums\Alignment;
+use Filament\Forms\Components\Section;
+use Filament\Tables\Actions\BulkAction;
 use Illuminate\Validation\Rules\Unique;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use App\Filament\Resources\HorarioResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\HorarioResource\RelationManagers;
-use Filament\Forms\Components\Section;
 
 class HorarioResource extends Resource
 {
@@ -109,11 +112,21 @@ class HorarioResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('descripcion_horario')
-                    ->label('Horarios de atención'),
-                Tables\Columns\IconColumn::make('estado')
+                Tables\Columns\TextColumn::make('dia_semana')
+                    ->label('Dia de atención')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('hora_inicio')
                     ->alignment(Alignment::Center)
-                    ->boolean(),
+                    ->label('Inicio del turno')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('hora_fin')
+                    ->alignment(Alignment::Center)
+                    ->label('Fin del turno'),
+                Tables\Columns\ToggleColumn::make('estado')
+                    ->alignment(Alignment::Center)
+                    ->onColor('success')
+                    ->onIcon('heroicon-m-check')
+                    ->offIcon('heroicon-m-x-mark'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Creado en')
                     ->dateTime()
@@ -127,7 +140,16 @@ class HorarioResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: false),
             ])
             ->filters([
-                //
+                SelectFilter::make('dia_semana')
+                    ->multiple()
+                    ->options([
+                        'lunes' => 'lunes',
+                        'martes' => 'martes',
+                        'miercoles' => 'miercoles',
+                        'jueves' => 'jueves',
+                        'viernes' => 'viernes',
+                    ])
+                    ->native(false),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -135,6 +157,22 @@ class HorarioResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    BulkAction::make('activar horarios')
+                        ->requiresConfirmation()
+                        ->icon('heroicon-o-arrow-up')
+                        ->color('info')
+                        ->action(fn (Collection $records) => $records->each(function ($record) {
+                            // Aquí desactiva el campo "Activo" para cada registro
+                            $record->update(['estado' => true]);
+                        })),
+                    BulkAction::make('desactivar horarios')
+                        ->icon('heroicon-o-arrow-down')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->action(fn (Collection $records) => $records->each(function ($record) {
+                            // Aquí desactiva el campo "Activo" para cada registro
+                            $record->update(['estado' => false]);
+                        })),
                 ]),
             ]);
     }

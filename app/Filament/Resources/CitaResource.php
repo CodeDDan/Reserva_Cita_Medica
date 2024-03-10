@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources;
 
-use App\Enums\CitaEstadoEnum;
 use Filament\Forms;
 use App\Models\Cita;
 use Filament\Tables;
@@ -14,6 +13,7 @@ use App\Models\Empleado;
 use App\Models\Paciente;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Enums\CitaEstadoEnum;
 use Illuminate\Support\Carbon;
 use Filament\Resources\Resource;
 use Filament\Actions\CreateAction;
@@ -26,6 +26,7 @@ use Filament\Forms\Components\Section;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rules\Unique;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
@@ -75,8 +76,8 @@ class CitaResource extends Resource
                             ->suffixIcon('heroicon-o-identification')
                             ->suffixIconColor('primary')
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn (Set $set) => $set('empleado_id', null))
                             ->requiredUnless('empleado_id', !null)
+                            ->afterStateUpdated(fn (Set $set) => $set('empleado_id', null))
                             ->validationMessages([
                                 'required' => 'Especialidad no seleccionada'
                             ])
@@ -296,7 +297,10 @@ class CitaResource extends Resource
                     ->description('Agrege información sobre el motivo de la consulta.')
                     ->icon('heroicon-o-document-minus')
                     ->schema([
-                        RichEditor::make('motivo'), // Ocasiona un error de label
+                        RichEditor::make('motivo') // Ocasiona un error de label
+                            // ->fileAttachmentsDisk('local') // Configurar el disco como local
+                            // ->fileAttachmentsDirectory('C:\Users\Daniel\Documents\filament_diagnostico_imagenes') // Especificar la carpeta de almacenamiento
+                            // ->fileAttachmentsVisibility('public') // Establecer la visibilidad de los archivos adjuntos
                     ]),
                 Section::make('Estado y fechas')
                     ->description('Agrege el estado de la cita y la fecha de la cita')
@@ -321,6 +325,7 @@ class CitaResource extends Resource
                             ->default('Agendado')
                             ->disabledOn('create'),
                         DatePicker::make('dia_cita')
+                            ->hiddenOn('edit')
                             ->format('m-d-Y')
                             ->native(false)
                             ->suffixIcon('heroicon-o-calendar')
@@ -331,6 +336,7 @@ class CitaResource extends Resource
                             ->live(onBlur: true)
                             ->afterStateUpdated(fn (Set $set) => $set('hora_cita', null)),
                         Select::make('hora_cita')
+                            ->hiddenOn('edit')
                             ->label('Hora de la cita')
                             ->relationship(
                                 // Se debe ir relación por relación.
@@ -391,7 +397,7 @@ class CitaResource extends Resource
                         DateTimePicker::make('fecha_inicio_cita')
                             ->disabled()
                             ->required()
-                            ->dehydrated(true)
+                            ->dehydrated(true) // Para que se siga enviando el valor del campo a pesar de que esté deshabilitado
                             ->unique(modifyRuleUsing: function (Unique $rule, callable $get) {
                                 return $rule
                                     ->where(function ($query) use ($get) {
@@ -400,7 +406,7 @@ class CitaResource extends Resource
                                     })
                                     ->where('fecha_inicio_cita', $get('fecha_inicio_cita'));
                             }, ignoreRecord: true)
-                            ->minDate(now())
+                            // Se cambia la validación de fecha mínima al formulario de creacion para no interferir con la edición
                             ->validationMessages([
                                 'unique' => 'Fecha no disponible (Doctor o Paciente ya asignados a esta fecha y hora)',
                             ])->native(false),
@@ -524,20 +530,23 @@ class CitaResource extends Resource
                     })
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\Action::make('Cancelar cita')
-                    ->action(function (Cita $cita) {
-                        if ($cita->estado != 'Abandonado') {
-                            $cita->update([
-                                'fecha_fin_cita' => $cita->fecha_inicio_cita,
-                                'fecha_inicio_cita' => null,
-                                'estado' => 'Cancelado',
-                            ]);
-                        }
-                    })
-                    ->icon('heroicon-s-archive-box-arrow-down')
-                    ->color('warning')
-                    ->requiresConfirmation(),
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\Action::make('Cancelar cita')
+                        ->action(function (Cita $cita) {
+                            if ($cita->estado != 'Abandonado') {
+                                $cita->update([
+                                    'fecha_fin_cita' => $cita->fecha_inicio_cita,
+                                    'fecha_inicio_cita' => null,
+                                    'estado' => 'Cancelado',
+                                ]);
+                            }
+                        })
+                        ->icon('heroicon-s-archive-box-arrow-down')
+                        ->color('warning')
+                        ->requiresConfirmation(),
+                ])->iconButton()
+                    ->tooltip('Acciones'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

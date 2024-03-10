@@ -112,7 +112,8 @@ class CitaController extends Controller
             return response()->json(['mensaje' => 'Cita almacenada'], 201);
         } catch (\Exception $exception) {
             // Devolver un mensaje de error genérico si la cita no se puede crear
-            return response()->json(['error' => 'Cita no creada'], 500);
+            // Generalmente porque no hay disponibilidad para dicho horario
+            return response()->json(['error' => 'Fecha ya reservada, cita no creada'], 500);
         }
     }
 

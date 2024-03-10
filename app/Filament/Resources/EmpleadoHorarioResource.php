@@ -63,9 +63,11 @@ class EmpleadoHorarioResource extends Resource
                 Tables\Columns\TextColumn::make('horario.descripcion_horario')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\IconColumn::make('activo')
+                Tables\Columns\ToggleColumn::make('activo')
                     ->alignment(Alignment::Center)
-                    ->boolean(),
+                    ->onColor('success')
+                    ->onIcon('heroicon-m-check')
+                    ->offIcon('heroicon-m-x-mark'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

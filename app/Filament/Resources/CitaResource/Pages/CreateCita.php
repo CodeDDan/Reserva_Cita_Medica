@@ -15,6 +15,10 @@ class CreateCita extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        $currentDateTime = Carbon::now();
+        // Debemos usar esta transformación para usar el método lessThan
+        $fecha_cita = Carbon::parse($data['fecha_inicio_cita']);
+
         if ($data['empleado_id'] == null) {
             $data['empleado_id'] = $this->asignarDoctorEquitativo($data['fecha_inicio_cita'], $data['grupo_id']);
         }
@@ -25,6 +29,16 @@ class CreateCita extends CreateRecord
                 ->color('danger')
                 ->title('No se creó la cita')
                 ->body('No hay disponibilidad para la fecha y especialidad seleccionada')
+                ->send();
+            // Detiene el flujo de ejecución
+            $this->halt();
+        }
+        if($fecha_cita->lessThan($currentDateTime)) {
+            Notification::make()
+                ->danger()
+                ->color('danger')
+                ->title('Fecha incorrecta')
+                ->body('La fecha de la cita debe ser mayor a la fecha y hora actual')
                 ->send();
             // Detiene el flujo de ejecución
             $this->halt();

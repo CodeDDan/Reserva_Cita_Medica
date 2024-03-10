@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Diagnostico;
@@ -33,15 +34,24 @@ class DiagnosticoResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('cita_id')
-                    ->relationship('cita', 'id')
+                    ->relationship(
+                        'cita', 
+                        'id',
+                        modifyQueryUsing: function (Builder $query) {
+                            return $query->where('estado', 'Consultado');
+                        })
                     ->getOptionLabelFromRecordUsing(function (Model $record) {
-                        // Aquí asumo que 'paciente' y 'empleado' son atributos en tu modelo 'cita'.
-                        $pacienteNombre = $record->paciente->nombre_completo; // Ajusta según la estructura de tu modelo.
-                        $empleadoNombre = $record->empleado->nombre_completo; // Ajusta según la estructura de tu modelo.
-
+                        // Construiremos el query de selección con multiples detalles
+                        // Dado que la relación está en cita, a partir de ahí nos movemos
+                        $pacienteNombre = $record->paciente->nombre_completo;
+                        $empleadoNombre = $record->empleado->nombre_completo;
+                        $fechaAtencion = $record->fecha_inicio_cita;
                         // Concatenar los nombres del paciente y el empleado.
-                        return "{$pacienteNombre} - {$empleadoNombre}";
+                        return "{$pacienteNombre} - {$empleadoNombre} - {$fechaAtencion}";
                     })
+                    ->searchable()
+                    ->preload(10)
+                    ->native(false)
                     ->required(),
                 Forms\Components\RichEditor::make('detalles')
                     ->required()
