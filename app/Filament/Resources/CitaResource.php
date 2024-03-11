@@ -411,10 +411,13 @@ class CitaResource extends Resource
                                 'unique' => 'Fecha no disponible (Doctor o Paciente ya asignados a esta fecha y hora)',
                             ])->native(false),
                         DateTimePicker::make('fecha_fin_cita')
-                            ->readOnly()
+                            ->after('fecha_inicio_cita')
                             ->suffixIcon('heroicon-s-calendar')
                             ->suffixIconColor('primary')
                             ->hiddenOn('create')
+                            ->validationMessages([
+                                'after' => 'La fecha de fin de cita no puede ser anterior a el inicio'
+                            ])
                             ->native(false),
                     ])->columns(2),
             ]);

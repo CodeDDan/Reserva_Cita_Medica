@@ -36,7 +36,7 @@ class PacienteResource extends Resource
     {
         return static::getModel()::count();
     }
-    
+
     public static function form(Form $form): Form
     {
         return $form
@@ -48,11 +48,19 @@ class PacienteResource extends Resource
                     ->icon('heroicon-o-identification')
                     ->schema([
                         TextInput::make('nombre')
+                            ->regex('/^[A-Za-z\s]+$/')
                             ->required() // Propiedad requerida para el envío del formulario
-                            ->maxLength(64), // Longitud máxima
+                            ->maxLength(64) // Longitud máxima
+                            ->validationMessages([
+                                'regex' => 'Solo se admiten letras y espacios en el nombre'
+                            ]),
                         TextInput::make('apellido')
+                            ->regex('/^[A-Za-z\s]+$/')
                             ->required()
-                            ->maxLength(64),
+                            ->maxLength(64)
+                            ->validationMessages([
+                                'regex' => 'Solo se admiten letras y espacios en el apellido'
+                            ]),
                         DatePicker::make('fecha_de_nacimiento')
                             ->native(false) // Le indicamos no usar el componente html por defecto
                             ->suffixIcon('heroicon-o-cake')
@@ -77,16 +85,30 @@ class PacienteResource extends Resource
                     ->icon('heroicon-o-clipboard-document-list')
                     ->schema([
                         TextInput::make('direccion')
+                            ->regex('/^(?=.*[a-zA-Z]\s[a-zA-Z]).*$/')
+                            ->validationMessages([
+                                'regex' => 'Ingrese una dirección válida.'
+                            ])
                             ->suffixIcon('heroicon-o-home-modern')
                             ->suffixIconColor('primary')
                             ->maxLength(255),
                         TextInput::make('telefono')
                             ->tel()
+                            ->telRegex('/^(\+593|593|09)(\d{8})$/')
+                            ->unique(ignoreRecord: true)
                             ->required()
                             ->suffixIcon('heroicon-o-device-phone-mobile')
                             ->suffixIconColor('primary')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->validationMessages([
+                                'regex' => 'Ingrese un número ecuatoriano válido',
+                                'unique' => 'El número telefónico ya existe en nuestros registros',
+                            ]),
                         TextInput::make('contacto_opcional')
+                            ->regex('/^(?=.*[a-zA-Z])(?=.*\d).*\s.*[a-zA-Z0-9].*$/')
+                            ->validationMessages([
+                                'regex' => 'Ingrese un contacto válido.'
+                            ])
                             ->suffixIcon('heroicon-o-phone')
                             ->suffixIconColor('primary')
                             ->maxLength(255),

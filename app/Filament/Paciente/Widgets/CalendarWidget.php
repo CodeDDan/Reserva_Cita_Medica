@@ -166,6 +166,7 @@ class CalendarWidget extends FullCalendarWidget
                         // Se cambia la validación de fecha mínima al formulario de creacion para no interferir con la edición
                         ->validationMessages([
                             'unique' => 'Fecha no disponible (Doctor o Paciente ya asignados a esta fecha y hora)',
+                            'required' => 'Seleccione la fecha y hora de la reserva',
                         ])->native(false),
                     DateTimePicker::make('fecha_fin_cita')
                         ->readOnly()
@@ -244,7 +245,7 @@ class CalendarWidget extends FullCalendarWidget
                 ->mountUsing(
                     function (Form $form, array $arguments) {
                         $form->fill([
-                            'fecha_inicio_cita' => $arguments['start'] ?? null,
+                            'dia_cita' => $arguments['start'] ?? null,
                             'fecha_fin_cita' => $arguments['end'] ?? null
                         ]);
                     }

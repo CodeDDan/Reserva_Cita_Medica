@@ -93,13 +93,16 @@ class EmpleadoResource extends Resource
                             ->suffixIcon('heroicon-o-cake')
                             ->suffixIconColor('primary')
                             ->required()
-                            ->numeric(),
+                            ->numeric()
+                            ->minValue(16)
+                            ->maxValue(60),
                     ])->columns(2),
                 Section::make('Información de contacto')
                     ->description('Información relevante para el contacto')
                     ->icon('heroicon-o-clipboard-document-list')
                     ->schema([
                         TextInput::make('correo')
+                            ->email()
                             ->required()
                             ->suffixIcon('heroicon-o-at-symbol')
                             ->suffixIconColor('primary')
@@ -109,20 +112,30 @@ class EmpleadoResource extends Resource
                             ])
                             ->maxLength(255),
                         TextInput::make('direccion')
+                            ->regex('/^(?=.*[a-zA-Z]\s[a-zA-Z]).*$/')
+                            ->validationMessages([
+                                'regex' => 'Ingrese una dirección válida.'
+                            ])
                             ->suffixIcon('heroicon-o-home-modern')
                             ->suffixIconColor('primary')
                             ->maxLength(255),
                         TextInput::make('telefono')
                             ->tel()
+                            ->telRegex('/^(\+593|593|09)(\d{8})$/')
                             ->suffixIcon('heroicon-o-device-phone-mobile')
                             ->suffixIconColor('primary')
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->validationMessages([
+                                'regex' => 'Ingrese un número ecuatoriano válido',
                                 'unique' => 'Dicho número ya existe en nuestros registros.',
                             ])
                             ->maxLength(255),
                         TextInput::make('contacto_opcional')
+                            ->regex('/^(?=.*[a-zA-Z])(?=.*\d).*\s.*[a-zA-Z0-9].*$/')
+                            ->validationMessages([
+                                'regex' => 'Ingrese un contacto válido.'
+                            ])
                             ->suffixIcon('heroicon-o-phone')
                             ->suffixIconColor('primary')
                             ->maxLength(255),
