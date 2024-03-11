@@ -52,7 +52,7 @@ class PacientePanelProvider extends PanelProvider
             ->plugin(
                 FilamentFullCalendarPlugin::make()
                     ->config([
-                        'editable' => true,
+                        'editable' => false, // No permite el drag and drop
                         'selectable' => true,
                         // 'validRange' => [
                         //     'start' => date('Y-m-d'), // A partir de hoy
@@ -70,10 +70,13 @@ class PacientePanelProvider extends PanelProvider
                                 'buttonText' => 'Agenda Semanal',
                                 // 'duration' => ['days' => 3], // Limita la vista de la lista semanal a 4 días
                             ],
-                            'listDay' => [  
+                            'listDay' => [
                                 'buttonText' => 'Lista Diaria',
                             ],
                         ],
+                        'slotMinTime' => '08:00:00', // Hora mínima (8 a.m.)
+                        'slotMaxTime' => '20:00:00', // Hora máxima (8 p.m.)
+                        'slotDuration' => '01:00:00', // Intervalo de 1 hora entre las horas
                         // Otras configuraciones...
                     ])
             )
