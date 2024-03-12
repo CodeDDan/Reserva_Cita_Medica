@@ -6,6 +6,7 @@ use DateTime;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Horario;
+use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -45,7 +46,7 @@ class HorarioResource extends Resource
             $dateTime = DateTime::createFromFormat('H:i', $state);
 
             // Aumentar la hora en 1
-            $dateTime->modify('+1 hour');
+            $dateTime->modify('+30 minutes');
 
             // Formatear y devolver la hora aumentada
             return $dateTime->format('H:i');
@@ -59,6 +60,9 @@ class HorarioResource extends Resource
                     ->schema([
                         Select::make('dia_semana')
                             ->required()
+                            ->validationMessages([
+                                'required' => 'Seleccione un día de la semana'
+                            ])
                             ->options([
                                 'Lunes' => 'Lunes',
                                 'Martes' => 'Martes',
@@ -71,17 +75,32 @@ class HorarioResource extends Resource
                         Select::make('hora_inicio')
                             ->options([
                                 '08:00' => '08:00',
+                                '08:30' => '08:30',
                                 '09:00' => '09:00',
+                                '09:30' => '09:30',
                                 '10:00' => '10:00',
+                                '10:30' => '10:30',
                                 '11:00' => '11:00',
+                                '11:30' => '11:30',
                                 '13:00' => '13:00',
+                                '13:30' => '13:30',
                                 '14:00' => '14:00',
+                                '14:30' => '14:30',
                                 '15:00' => '15:00',
+                                '15:30' => '15:30',
                                 '16:00' => '16:00',
+                                '16:30' => '16:30',
                                 '17:00' => '17:00',
+                                '17:30' => '17:30',
+                                '18:00' => '18:00',
+                                '18:30' => '18:30',
                             ])
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn (Set $set, ?String $state) => $set('hora_fin', aumentarHora($state)))
+                            ->afterStateUpdated(function (Set $set, Get $get, ?String $state) {
+                                if ($get('hora_inicio') !== null) {
+                                    $set('hora_fin', aumentarHora($state));
+                                }
+                            })
                             ->required()
                             ->unique(modifyRuleUsing: function (Unique $rule, callable $get) {
                                 return $rule
@@ -90,12 +109,17 @@ class HorarioResource extends Resource
                                     ->where('hora_fin', $get('hora_fin'));
                             }, ignoreRecord: true)
                             ->validationMessages([
-                                'unique' => 'Ya existe dicho horario'
+                                'unique' => 'Ya existe dicho horario.',
+                                'required' => 'Seleccione una hora.'
                             ])
                             ->native(false),
                         Forms\Components\TextInput::make('hora_fin')
                             ->readOnly()
-                            ->required(),
+                            ->required()
+                            ->validationMessages([
+                                'unique' => 'Ya existe dicho horario.',
+                                'required' => 'Se necesita una hora final'
+                            ]),
                         Forms\Components\Toggle::make('estado')
                             ->onColor('success')
                             ->onIcon('heroicon-m-check')
