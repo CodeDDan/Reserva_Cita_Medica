@@ -21,6 +21,8 @@ class DiagnosticoResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
+    protected static ?string $modelLabel = 'Diagnóstico';
+
     // Modifica el nombre del label del panel
     //protected static ?string $navigationLabel = 'Ver citas';
 
@@ -28,6 +30,11 @@ class DiagnosticoResource extends Resource
     //protected static ?string $modelLabel = 'Mis citas';
 
     protected static ?string $navigationGroup = 'Gestión Clínica';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 
     public static function form(Form $form): Form
     {

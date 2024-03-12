@@ -84,9 +84,17 @@ class EmpleadoResource extends Resource
                                     ])->columns(2), // La propiedad collapsible evita que se agrege required al input
                             ]),
                         TextInput::make('nombre')
+                            ->regex('/^[A-Za-z\s]+$/')
+                            ->validationMessages([
+                                'regex' => 'Solo se admiten letras y espacios en el nombre'
+                            ])
                             ->required()
                             ->maxLength(64),
                         TextInput::make('apellido')
+                            ->regex('/^[A-Za-z\s]+$/')
+                            ->validationMessages([
+                                'regex' => 'Solo se admiten letras y espacios en el nombre'
+                            ])
                             ->required()
                             ->maxLength(64),
                         TextInput::make('edad')
@@ -134,7 +142,7 @@ class EmpleadoResource extends Resource
                         TextInput::make('contacto_opcional')
                             ->regex('/^(?=.*[a-zA-Z])(?=.*\d).*\s.*[a-zA-Z0-9].*$/')
                             ->validationMessages([
-                                'regex' => 'Ingrese un contacto válido.'
+                                'regex' => 'Ingrese un contacto válido. Ejemplo: (Papá: 09xxxxx..)'
                             ])
                             ->suffixIcon('heroicon-o-phone')
                             ->suffixIconColor('primary')
@@ -286,8 +294,8 @@ class EmpleadoResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
-            RelationManagers\CitasRelationManager::class
+            // Se desactiva la relación
+            // RelationManagers\CitasRelationManager::class
         ];
     }
 

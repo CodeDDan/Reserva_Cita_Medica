@@ -76,7 +76,6 @@ class CitaResource extends Resource
                             ->suffixIcon('heroicon-o-identification')
                             ->suffixIconColor('primary')
                             ->live(onBlur: true)
-                            ->requiredUnless('empleado_id', !null)
                             ->afterStateUpdated(fn (Set $set) => $set('empleado_id', null))
                             ->validationMessages([
                                 'required' => 'Especialidad no seleccionada'
@@ -99,98 +98,98 @@ class CitaResource extends Resource
                             ->live(onBlur: true)
                             ->native(false)
                             ->suffixIcon('heroicon-o-user-plus')
-                            ->suffixIconColor('primary')
-                            ->createOptionForm([
-                                Section::make('Grupo e Información')
-                                    ->description('Información principal del empleado')
-                                    ->icon('heroicon-o-identification')
-                                    ->schema([
-                                        Select::make('grupo_id')
-                                            ->relationship('grupo', 'nombre')
-                                            ->suffixIcon('heroicon-o-user-group')
-                                            ->suffixIconColor('primary')
-                                            ->required()
-                                            ->native(false)
-                                            ->native(false),
-                                        TextInput::make('nombre')
-                                            ->required()
-                                            ->maxLength(64),
-                                        TextInput::make('apellido')
-                                            ->required()
-                                            ->maxLength(64),
-                                        TextInput::make('edad')
-                                            ->suffixIcon('heroicon-o-cake')
-                                            ->suffixIconColor('primary')
-                                            ->required()
-                                            ->numeric(),
-                                    ])->columns(2),
-                                Section::make('Información de contacto')
-                                    ->description('Información relevante para el contacto')
-                                    ->icon('heroicon-o-clipboard-document-list')
-                                    ->schema([
-                                        TextInput::make('correo')
-                                            ->required()
-                                            ->suffixIcon('heroicon-o-at-symbol')
-                                            ->suffixIconColor('primary')
-                                            ->unique(ignoreRecord: true)
-                                            ->validationMessages([
-                                                'unique' => 'El correo ya existe en nuestros registros.'
-                                            ])
-                                            ->maxLength(255),
-                                        TextInput::make('direccion')
-                                            ->suffixIcon('heroicon-o-home-modern')
-                                            ->suffixIconColor('primary')
-                                            ->maxLength(255),
-                                        TextInput::make('telefono')
-                                            ->tel()
-                                            ->suffixIcon('heroicon-o-device-phone-mobile')
-                                            ->suffixIconColor('primary')
-                                            ->required()
-                                            ->unique(ignoreRecord: true)
-                                            ->validationMessages([
-                                                'unique' => 'Dicho número ya existe en nuestros registros.',
-                                            ])
-                                            ->maxLength(255),
-                                        TextInput::make('contacto_opcional')
-                                            ->suffixIcon('heroicon-o-phone')
-                                            ->suffixIconColor('primary')
-                                            ->maxLength(255),
-                                    ])->columns(2),
-                                Section::make('Información extra')
-                                    ->description('Detalles relevantes del empleado')
-                                    ->icon('heroicon-o-shield-check')
-                                    ->schema([
-                                        TextInput::make('password')
-                                            ->label('Contraseña')
-                                            ->password()
-                                            ->suffixIcon('heroicon-o-lock-closed')
-                                            ->suffixIconColor('primary')
-                                            ->required()
-                                            ->confirmed()
-                                            ->validationMessages([
-                                                'confirmed' => 'Las contraseñas no coinciden.',
-                                            ])
-                                            ->maxLength(255),
-                                        TextInput::make('password_confirmation')
-                                            ->label('Confirmar contraseña')
-                                            ->password()
-                                            ->suffixIcon('heroicon-s-lock-closed')
-                                            ->suffixIconColor('primary')
-                                            ->required()
-                                            ->maxLength(255),
-                                        DatePicker::make('fecha_de_contratacion')
-                                            ->native(false)
-                                            ->suffixIcon('heroicon-o-calendar')
-                                            ->suffixIconColor('primary')
-                                            ->maxDate(now())
-                                            ->minDate(now()->subYears(120))
-                                            ->default(now())
-                                            ->required(),
-                                        TextInput::make('activo')
-                                            ->hidden()
-                                            ->default(1),
-                                    ])->columns(2)
-                            ]),
+                            ->suffixIconColor('primary'),
+                            // ->createOptionForm([
+                            //     Section::make('Grupo e Información')
+                            //         ->description('Información principal del empleado')
+                            //         ->icon('heroicon-o-identification')
+                            //         ->schema([
+                            //             Select::make('grupo_id')
+                            //                 ->relationship('grupo', 'nombre')
+                            //                 ->suffixIcon('heroicon-o-user-group')
+                            //                 ->suffixIconColor('primary')
+                            //                 ->required()
+                            //                 ->native(false)
+                            //                 ->native(false),
+                            //             TextInput::make('nombre')
+                            //                 ->required()
+                            //                 ->maxLength(64),
+                            //             TextInput::make('apellido')
+                            //                 ->required()
+                            //                 ->maxLength(64),
+                            //             TextInput::make('edad')
+                            //                 ->suffixIcon('heroicon-o-cake')
+                            //                 ->suffixIconColor('primary')
+                            //                 ->required()
+                            //                 ->numeric(),
+                            //         ])->columns(2),
+                            //     Section::make('Información de contacto')
+                            //         ->description('Información relevante para el contacto')
+                            //         ->icon('heroicon-o-clipboard-document-list')
+                            //         ->schema([
+                            //             TextInput::make('correo')
+                            //                 ->required()
+                            //                 ->suffixIcon('heroicon-o-at-symbol')
+                            //                 ->suffixIconColor('primary')
+                            //                 ->unique(ignoreRecord: true)
+                            //                 ->validationMessages([
+                            //                     'unique' => 'El correo ya existe en nuestros registros.'
+                            //                 ])
+                            //                 ->maxLength(255),
+                            //             TextInput::make('direccion')
+                            //                 ->suffixIcon('heroicon-o-home-modern')
+                            //                 ->suffixIconColor('primary')
+                            //                 ->maxLength(255),
+                            //             TextInput::make('telefono')
+                            //                 ->tel()
+                            //                 ->suffixIcon('heroicon-o-device-phone-mobile')
+                            //                 ->suffixIconColor('primary')
+                            //                 ->required()
+                            //                 ->unique(ignoreRecord: true)
+                            //                 ->validationMessages([
+                            //                     'unique' => 'Dicho número ya existe en nuestros registros.',
+                            //                 ])
+                            //                 ->maxLength(255),
+                            //             TextInput::make('contacto_opcional')
+                            //                 ->suffixIcon('heroicon-o-phone')
+                            //                 ->suffixIconColor('primary')
+                            //                 ->maxLength(255),
+                            //         ])->columns(2),
+                            //     Section::make('Información extra')
+                            //         ->description('Detalles relevantes del empleado')
+                            //         ->icon('heroicon-o-shield-check')
+                            //         ->schema([
+                            //             TextInput::make('password')
+                            //                 ->label('Contraseña')
+                            //                 ->password()
+                            //                 ->suffixIcon('heroicon-o-lock-closed')
+                            //                 ->suffixIconColor('primary')
+                            //                 ->required()
+                            //                 ->confirmed()
+                            //                 ->validationMessages([
+                            //                     'confirmed' => 'Las contraseñas no coinciden.',
+                            //                 ])
+                            //                 ->maxLength(255),
+                            //             TextInput::make('password_confirmation')
+                            //                 ->label('Confirmar contraseña')
+                            //                 ->password()
+                            //                 ->suffixIcon('heroicon-s-lock-closed')
+                            //                 ->suffixIconColor('primary')
+                            //                 ->required()
+                            //                 ->maxLength(255),
+                            //             DatePicker::make('fecha_de_contratacion')
+                            //                 ->native(false)
+                            //                 ->suffixIcon('heroicon-o-calendar')
+                            //                 ->suffixIconColor('primary')
+                            //                 ->maxDate(now())
+                            //                 ->minDate(now()->subYears(120))
+                            //                 ->default(now())
+                            //                 ->required(),
+                            //             TextInput::make('activo')
+                            //                 ->hidden()
+                            //                 ->default(1),
+                            //         ])->columns(2)
+                            // ]),
                         Select::make('paciente_id')
                             ->label('Paciente')
                             ->relationship('paciente', 'nombre_completo')

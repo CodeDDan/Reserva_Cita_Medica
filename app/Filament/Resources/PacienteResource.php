@@ -87,7 +87,7 @@ class PacienteResource extends Resource
                         TextInput::make('direccion')
                             ->regex('/^(?=.*[a-zA-Z]\s[a-zA-Z]).*$/')
                             ->validationMessages([
-                                'regex' => 'Ingrese una dirección válida.'
+                                'regex' => 'Ingrese una dirección válida. Ejemplo (Monteolivo s2041)'
                             ])
                             ->suffixIcon('heroicon-o-home-modern')
                             ->suffixIconColor('primary')
@@ -107,7 +107,7 @@ class PacienteResource extends Resource
                         TextInput::make('contacto_opcional')
                             ->regex('/^(?=.*[a-zA-Z])(?=.*\d).*\s.*[a-zA-Z0-9].*$/')
                             ->validationMessages([
-                                'regex' => 'Ingrese un contacto válido.'
+                                'regex' => 'Ingrese un contacto válido. Ejemplo: (Papá: 09xxxxx..)'
                             ])
                             ->suffixIcon('heroicon-o-phone')
                             ->suffixIconColor('primary')

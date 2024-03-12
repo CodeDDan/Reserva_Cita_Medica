@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Eloquent\Model;
 
 class TratamientoResource extends Resource
 {
@@ -27,12 +28,27 @@ class TratamientoResource extends Resource
 
     protected static ?string $navigationGroup = 'Gestión Clínica';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('diagnostico_id')
                     ->relationship('diagnostico', 'id')
+                    ->getOptionLabelFromRecordUsing(function (Model $record) {
+                        // Construiremos el query de selección con multiples detalles
+                        // Dado que la relación está en diagnóstico, a partir de ahí nos movemos
+                        $pacienteNombre = $record->cita->paciente->nombre_completo;
+                        $empleadoNombre = $record->cita->empleado->nombre_completo;
+                        $fechaAtencion = $record->cita->fecha_inicio_cita;
+                        // Concatenar los nombres del paciente y el empleado.
+                        return "{$pacienteNombre} - {$empleadoNombre} - {$fechaAtencion}";
+                    })
+                    ->native(false)
                     ->required(),
                 Forms\Components\TextInput::make('tipo_tratamiento')
                     ->required()
@@ -55,8 +71,14 @@ class TratamientoResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('diagnostico.id')
-                    ->numeric()
+                // Tables\Columns\TextColumn::make('diagnostico.id')
+                //     ->numeric()
+                //     ->sortable(),
+                Tables\Columns\TextColumn::make('diagnostico.cita.paciente.nombre_completo')
+                    ->label('Paciente')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('diagnostico.cita.empleado.nombre_completo')
+                    ->label('Doctor')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('tipo_tratamiento')
                     ->searchable(),

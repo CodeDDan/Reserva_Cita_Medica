@@ -23,6 +23,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Saade\FilamentFullCalendar\Actions\CreateAction;
 use Saade\FilamentFullCalendar\Actions\DeleteAction;
 use App\Filament\Resources\CitaResource\Pages\CreateCita;
+use Filament\Forms\Components\TextInput;
 use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
 use Saade\FilamentFullCalendar\Widgets\FullCalendarWidget;
 
@@ -43,7 +44,6 @@ class CalendarWidget extends FullCalendarWidget
                         ->suffixIcon('heroicon-o-identification')
                         ->suffixIconColor('primary')
                         ->live(onBlur: true)
-                        ->requiredUnless('empleado_id', !null)
                         ->afterStateUpdated(fn (Set $set) => $set('empleado_id', null))
                         ->validationMessages([
                             'required_unless' => 'Especialidad no seleccionada',
@@ -246,7 +246,8 @@ class CalendarWidget extends FullCalendarWidget
                     function (Form $form, array $arguments) {
                         $form->fill([
                             'dia_cita' => $arguments['start'] ?? null,
-                            'fecha_fin_cita' => $arguments['end'] ?? null
+                            'fecha_fin_cita' => $arguments['end'] ?? null,
+                            'paciente_id' => Auth::id(),
                         ]);
                     }
                 )

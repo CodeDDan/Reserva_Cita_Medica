@@ -75,8 +75,8 @@ class PacientePanelProvider extends PanelProvider
                             ],
                         ],
                         'slotMinTime' => '08:00:00', // Hora mínima (8 a.m.)
-                        'slotMaxTime' => '20:00:00', // Hora máxima (8 p.m.)
-                        'slotDuration' => '01:00:00', // Intervalo de 1 hora entre las horas
+                        'slotMaxTime' => '19:00:00', // Hora máxima (8 p.m.)
+                        'slotDuration' => '00:30:00', // Intervalo de 1 hora entre las horas
                         // Otras configuraciones...
                     ])
             )
@@ -84,6 +84,10 @@ class PacientePanelProvider extends PanelProvider
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
             ])
+            // Personalización
+            ->brandLogo(asset('imagenes/logo-dual.png'))
+            ->favicon(asset('imagenes/logo-dual.png'))
+            ->brandLogoHeight(fn () => auth()->check() ? '2rem' : '3rem')
             ->authMiddleware([
                 Authenticate::class,
             ])
