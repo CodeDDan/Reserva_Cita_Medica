@@ -82,7 +82,6 @@ class AdminPanelProvider extends PanelProvider
             // ->tenant(Grupo::class, ownershipRelationship: 'grupo', slugAttribute: 'slug')
             // ->tenantRegistration(RegisterTeam::class)
             // ->tenantProfile(EditTeamProfile::class)
-            ->registration()
             ->authGuard('web'); // En config/auth.php está definido web como el predeterminado
     }
 }

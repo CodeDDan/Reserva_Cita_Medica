@@ -1,7 +1,8 @@
 <?php
 
-use App\Http\Controllers\HomeController;
+use Livewire\Livewire;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +18,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/about', [HomeController::class, 'about']);
 
+Livewire::setScriptRoute(function($handle) {
+    return Route::get('/PI_Reserva_Medica/public/livewire/livewire.js', $handle);
+});
+
+Livewire::setUpdateRoute(function($handle) {
+    return Route::get('/PI_Reserva_Medica/public/livewire/update', $handle);
+});

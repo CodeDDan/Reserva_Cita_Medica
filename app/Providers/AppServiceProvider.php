@@ -32,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
                 ->displayLocale('es') // Asigna al español como el idioma predeterminado
                 ->locales(['es', 'en']);
         });
+        
         Page::$reportValidationErrorUsing = function (ValidationException $exception) {
             Notification::make()
                 ->title($exception->getMessage())
